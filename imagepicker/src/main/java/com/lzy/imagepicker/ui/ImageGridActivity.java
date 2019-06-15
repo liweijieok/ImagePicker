@@ -36,15 +36,15 @@ import java.util.List;
 
 /**
  * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
- * 版    本：1.0
- * 创建日期：2016/5/19
- * 描    述：
- * 修订历史：
+ * ??    ???jeasonlzy??????? Github?????https://github.com/jeasonlzy0216
+ * ??    ????1.0
+ * ?????????2016/5/19
+ * ??    ????
+ * ????????
  * 2017-03-17
  *
  * @author nanchen
- * 新增可直接传递是否裁剪参数，以及直接拍照
+ * ???????????????ü?????????????????
  * ================================================
  */
 public class ImageGridActivity extends ImageBaseActivity implements ImageDataSource.OnImagesLoadedListener, OnImageItemClickListener, ImagePicker.OnImageSelectedListener, View.OnClickListener {
@@ -56,17 +56,17 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
 
     private ImagePicker imagePicker;
 
-    private boolean isOrigin = false;  //是否选中原图
-    private View mFooterBar;     //底部栏
-    private Button mBtnOk;       //确定按钮
-    private View mllDir; //文件夹切换按钮
-    private TextView mtvDir; //显示当前文件夹
-    private TextView mBtnPre;      //预览按钮
-    private ImageFolderAdapter mImageFolderAdapter;    //图片文件夹的适配器
-    private FolderPopUpWindow mFolderPopupWindow;  //ImageSet的PopupWindow
-    private List<ImageFolder> mImageFolders;   //所有的图片文件夹
-    //    private ImageGridAdapter mImageGridAdapter;  //图片九宫格展示的适配器
-    private boolean directPhoto = false; // 默认不是直接调取相机
+    private boolean isOrigin = false;  //????????
+    private View mFooterBar;     //?????
+    private Button mBtnOk;       //??????
+    private View mllDir; //??????л????
+    private TextView mtvDir; //???????????
+    private TextView mBtnPre;      //??????
+    private ImageFolderAdapter mImageFolderAdapter;    //??????е???????
+    private FolderPopUpWindow mFolderPopupWindow;  //ImageSet??PopupWindow
+    private List<ImageFolder> mImageFolders;   //???е????????
+    //    private ImageGridAdapter mImageGridAdapter;  //?????????????????
+    private boolean directPhoto = false; // ??????????????
     private RecyclerView mRecyclerView;
     private ImageRecyclerAdapter mRecyclerAdapter;
 
@@ -96,9 +96,9 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         }
 
         Intent data = getIntent();
-        // 新增可直接拍照
+        // ?????????????
         if (data != null && data.getExtras() != null) {
-            directPhoto = data.getBooleanExtra(EXTRAS_TAKE_PICKERS, false); // 默认不是直接打开相机
+            directPhoto = data.getBooleanExtra(EXTRAS_TAKE_PICKERS, false); // ?????????????
             if (directPhoto) {
                 checkToCapture();
             }
@@ -188,21 +188,21 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         if (id == R.id.btn_ok) {
             Intent intent = new Intent();
             intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, imagePicker.getSelectedImages());
-            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);  //多选不允许裁剪裁剪，返回数据
+            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);  //?????????ü??ü???????????
             finish();
         } else if (id == R.id.ll_dir) {
             if (mImageFolders == null) {
-                Log.i("ImageGridActivity", "您的手机没有图片");
+                Log.i("ImageGridActivity", "????????????");
                 return;
             }
-            //点击文件夹按钮
+            //???????а??
             createPopupFolderList();
-            mImageFolderAdapter.refreshData(mImageFolders);  //刷新数据
+            mImageFolderAdapter.refreshData(mImageFolders);  //???????
             if (mFolderPopupWindow.isShowing()) {
                 mFolderPopupWindow.dismiss();
             } else {
                 mFolderPopupWindow.showAtLocation(mFooterBar, Gravity.NO_GRAVITY, 0, 0);
-                //默认选择当前选择的上一个，当目录很多时，直接定位到已选中的条目
+                //????????????????????????????????λ??????е????
                 int index = mImageFolderAdapter.getSelectIndex();
                 index = index == 0 ? index : index - 1;
                 mFolderPopupWindow.setSelection(index);
@@ -215,13 +215,13 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             intent.putExtra(ImagePicker.EXTRA_FROM_ITEMS, true);
             startActivityForResult(intent, ImagePicker.REQUEST_CODE_PREVIEW);
         } else if (id == R.id.btn_back) {
-            //点击返回按钮
+            //?????????
             finish();
         }
     }
 
     /**
-     * 创建弹出的ListView
+     * ??????????ListView
      */
     private void createPopupFolderList() {
         mFolderPopupWindow = new FolderPopUpWindow(this, mImageFolderAdapter);
@@ -265,7 +265,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
 
     @Override
     public void onImageItemClick(View view, ImageItem imageItem, int position) {
-        //根据是否有相机按钮确定位置
+        //??????????????????λ??
         position = imagePicker.isShowCamera() ? position - 1 : position;
         if (imagePicker.isMultiMode()) {
             Intent intent = new Intent(ImageGridActivity.this, ImagePreviewActivity.class);
@@ -274,29 +274,29 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             /**
              * 2017-03-20
              *
-             * 依然采用弱引用进行解决，采用单例加锁方式处理
+             * ???????????????н??????????????????????
              */
 
-            // 据说这样会导致大量图片的时候崩溃
+            // ????????????????????????
 //            intent.putExtra(ImagePicker.EXTRA_IMAGE_ITEMS, imagePicker.getCurrentImageFolderItems());
 
-            // 但采用弱引用会导致预览弱引用直接返回空指针
+            // ??????????????????????????????????
             DataHolder.getInstance().save(DataHolder.DH_CURRENT_IMAGE_FOLDER_ITEMS, imagePicker.getCurrentImageFolderItems());
             intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
-            startActivityForResult(intent, ImagePicker.REQUEST_CODE_PREVIEW);  //如果是多选，点击图片进入预览界面
+            startActivityForResult(intent, ImagePicker.REQUEST_CODE_PREVIEW);  //?????????????????????????
         } else {
             imagePicker.clearSelectedImages();
             imagePicker.addSelectedImageItem(position, imagePicker.getCurrentImageFolderItems().get(position), true);
             if (imagePicker.isFreeCrop) {
                 Intent intent = new Intent(ImageGridActivity.this, FreeCropActivity.class);
-                startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //进入自由裁剪界面
+                startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //????????ü?????
             } else if (imagePicker.isCrop()) {
                 Intent intent = new Intent(ImageGridActivity.this, ImageCropActivity.class);
-                startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //进入老版本裁剪界面
+                startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //??????汾?ü?????
             } else {
                 Intent intent = new Intent();
                 intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, imagePicker.getSelectedImages());
-                setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //单选不需要裁剪，返回数据
+                setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //?????????ü???????????
                 finish();
             }
         }
@@ -338,47 +338,50 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             if (resultCode == ImagePicker.RESULT_CODE_BACK) {
                 isOrigin = data.getBooleanExtra(ImagePreviewActivity.ISORIGIN, false);
             } else {
-                //从拍照界面返回
-                //点击 X , 没有选择照片
+                //????????淵??
+                //??? X , ?????????
                 if (data.getSerializableExtra(ImagePicker.EXTRA_RESULT_ITEMS) == null) {
-                    //什么都不做 直接调起相机
+                    //???????? ?????????
                 } else {
-                    //说明是从裁剪页面过来的数据，直接返回就可以
+                    //??????ü????????????????????????
                     setResult(ImagePicker.RESULT_CODE_ITEMS, data);
                 }
                 finish();
             }
         } else {
-            //如果是拍照，因为裁剪指定了存储的Uri，所以返回的data一定为null
+            //??????????????ü??????洢??Uri??????????data????null
             if (resultCode == RESULT_OK && requestCode == ImagePicker.REQUEST_CODE_TAKE) {
-                //发送广播通知图片增加了
+                //???????????????
                 ImagePicker.galleryAddPic(this, imagePicker.getTakeImageFile());
 
                 /**
-                 * 2017-03-21 对机型做旋转处理
+                 * 2017-03-21 ??????????????
                  */
                 String path = imagePicker.getTakeImageFile().getAbsolutePath();
 
-                //照相回来，首先添加至已选列表中
+                //??????????????????????б???
                 ImageItem imageItem = new ImageItem();
                 imageItem.path = path;
-                imagePicker.addSelectedImageItem(0, imageItem, true);
-                //是否需要裁剪，单选模式才支持裁剪
+                //???????ü?????????????ü?
                 if (!imagePicker.isMultiMode()) {
                     if (imagePicker.isFreeCrop) {
+                        imagePicker.clearSelectedImages();
+                        imagePicker.addSelectedImageItem(0, imageItem, true);
                         Intent intent = new Intent(ImageGridActivity.this, FreeCropActivity.class);
-                        startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //进入自由裁剪界面
+                        startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //????????ü?????
                         return;
                     } else if (imagePicker.isCrop()) {
+                        imagePicker.clearSelectedImages();
+                        imagePicker.addSelectedImageItem(0, imageItem, true);
                         Intent intent = new Intent(ImageGridActivity.this, ImageCropActivity.class);
-                        startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //进入老版本裁剪界面
+                        startActivityForResult(intent, ImagePicker.REQUEST_CODE_CROP);  //??????汾?ü?????
                         return;
                     }
                 }
-
+                imagePicker.addSelectedImageItem(0, imageItem, true);
                 Intent intent = new Intent();
                 intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, imagePicker.getSelectedImages());
-                setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //单选不需要裁剪，返回数据
+                setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //?????????ü???????????
                 finish();
             } else if (directPhoto) {
                 finish();
