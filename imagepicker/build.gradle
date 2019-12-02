@@ -38,7 +38,7 @@ dependencies {
 //    groupId = 'com.cysion'
 //    artifactId = 'ImagePicker'
 //    repoName='maven'
-//    publishVersion = '1.0.8.x'
+//    publishVersion = '1.0.9.Q'
 //    desc = '仿微信选择图片'
 //    website = 'https://**'
 //}

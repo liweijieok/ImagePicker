@@ -257,14 +257,13 @@ public class ImagePicker {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             ContentValues contentValues = new ContentValues();
-            //设置文件名
+
             contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, getFileName("IMG_", ".jpg"));
-            //设置文件类型
+
             contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/JPEG");
-            //执行insert操作，向系统文件夹中添加文件
-            //EXTERNAL_CONTENT_URI代表外部存储器，该值不变
+
             mUri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-            //若生成了uri，则表示该文件添加成功
+
             intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri);
             activity.startActivityForResult(intent, requestCode);
         } else {

@@ -98,7 +98,6 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
         ArrayList<ImageItem> allImages = new ArrayList<>();
         while (data.moveToNext()) {
             String imageName = data.getString(data.getColumnIndexOrThrow(mCurProjection[0]));
-            //Q之前，path即为真正路径，Q+,为相对路径
             String relativePath = data.getString(data.getColumnIndexOrThrow(mCurProjection[1]));
             long imageSize = data.getLong(data.getColumnIndexOrThrow(mCurProjection[2]));
             int imageWidth = data.getInt(data.getColumnIndexOrThrow(mCurProjection[3]));

@@ -67,11 +67,7 @@ public class BitmapUtil {
         return degree;
     }
 
-    /**
-     * 获取数据库表中的 _data 列，即返回Uri对应的文件路径
-     * sdk int <29时，可以根据uri获取文件路径
-     * @return
-     */
+
     private static String getDataColumn(Context context, Uri uri) {
         if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.P) {
             return "";
