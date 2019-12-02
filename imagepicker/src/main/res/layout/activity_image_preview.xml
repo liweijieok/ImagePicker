@@ -36,9 +36,9 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:paddingLeft="8dp"
-                android:text="原图(3.07M)"
+                android:text="@string/ip_origin"
                 android:textColor="#FFF"
-                android:visibility="invisible" />
+                android:visibility="visible" />
 
             <com.lzy.imagepicker.view.SuperCheckBox
                 android:id="@+id/cb_check"

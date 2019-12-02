@@ -1,15 +1,12 @@
 package com.lzy.imagepicker;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 
 import com.isseiaoki.simplecropview.FreeCropImageView;
@@ -17,8 +14,6 @@ import com.lzy.imagepicker.bean.ImageFolder;
 import com.lzy.imagepicker.bean.ImageItem;
 import com.lzy.imagepicker.loader.ImageLoader;
 import com.lzy.imagepicker.util.InnerToaster;
-import com.lzy.imagepicker.util.ProviderUtil;
-import com.lzy.imagepicker.util.Utils;
 import com.lzy.imagepicker.view.CropImageView;
 
 import java.io.File;
@@ -27,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.core.content.FileProvider;
 
 
 public class ImagePicker {
@@ -57,7 +50,6 @@ public class ImagePicker {
     private ImageLoader imageLoader;
     private CropImageView.Style style = CropImageView.Style.RECTANGLE;
     private File cropCacheFolder;
-    private File takeImageFile;
 
     public FreeCropImageView.CropMode mFreeCropMode = com.isseiaoki.simplecropview.FreeCropImageView.CropMode.FREE;
     public boolean isFreeCrop = false;
@@ -67,6 +59,8 @@ public class ImagePicker {
     private List<OnImageSelectedListener> mImageSelectedListeners;
 
     private static ImagePicker mInstance;
+    private Uri mUri;
+    private boolean isOrigin;
 
 
     private ImagePicker() {
@@ -155,8 +149,16 @@ public class ImagePicker {
         this.focusHeight = focusHeight;
     }
 
-    public File getTakeImageFile() {
-        return takeImageFile;
+    public boolean isOrigin() {
+        return isOrigin;
+    }
+
+    public void setOrigin(boolean aOrigin) {
+        isOrigin = aOrigin;
+    }
+
+    public Uri getUri() {
+        return mUri;
     }
 
     public File getCropCacheFolder(Context context) {
@@ -247,47 +249,35 @@ public class ImagePicker {
             InnerToaster.obj(activity).show(R.string.ip_str_no_camera);
             return;
         }
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        takePictureIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            if (Utils.existSDCard())
-                takeImageFile = new File(Environment.getExternalStorageDirectory(), "/DCIM/camera/");
-            else takeImageFile = Environment.getDataDirectory();
-            takeImageFile = createFile(takeImageFile, "IMG_", ".jpg");
-            if (takeImageFile != null) {
-                Uri uri;
-                if (VERSION.SDK_INT <= VERSION_CODES.M) {
-                    uri = Uri.fromFile(takeImageFile);
-                } else {
-
-                    uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile);
-                    List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                    for (ResolveInfo resolveInfo : resInfoList) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        activity.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    }
-                }
-
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            }
-        }
-        activity.startActivityForResult(takePictureIntent, requestCode);
+        takePicSupportQ(activity, requestCode);
     }
 
-    public static File createFile(File folder, String prefix, String suffix) {
-        if (!folder.exists() || !folder.isDirectory()) folder.mkdirs();
+    //take picture on android Q or above -- Cysion liu
+    public void takePicSupportQ(Activity activity, int requestCode) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            ContentValues contentValues = new ContentValues();
+            //设置文件名
+            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, getFileName("IMG_", ".jpg"));
+            //设置文件类型
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/JPEG");
+            //执行insert操作，向系统文件夹中添加文件
+            //EXTERNAL_CONTENT_URI代表外部存储器，该值不变
+            mUri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            //若生成了uri，则表示该文件添加成功
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri);
+            activity.startActivityForResult(intent, requestCode);
+        } else {
+            //todo..
+        }
+    }
+
+    public static String getFileName(String prefix, String suffix) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.CHINA);
         String filename = prefix + dateFormat.format(new Date(System.currentTimeMillis())) + suffix;
-        return new File(folder, filename);
+        return filename;
     }
 
-
-    public static void galleryAddPic(Context context, File file) {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        Uri contentUri = Uri.fromFile(file);
-        mediaScanIntent.setData(contentUri);
-        context.sendBroadcast(mediaScanIntent);
-    }
 
     public interface OnImageSelectedListener {
         void onImageSelected(int position, ImageItem item, boolean isAdd);
@@ -325,7 +315,6 @@ public class ImagePicker {
 
     public void restoreInstanceState(Bundle savedInstanceState) {
         cropCacheFolder = (File) savedInstanceState.getSerializable("cropCacheFolder");
-        takeImageFile = (File) savedInstanceState.getSerializable("takeImageFile");
         imageLoader = (ImageLoader) savedInstanceState.getSerializable("imageLoader");
         style = (CropImageView.Style) savedInstanceState.getSerializable("style");
         multiMode = savedInstanceState.getBoolean("multiMode");
@@ -342,7 +331,6 @@ public class ImagePicker {
 
     public void saveInstanceState(Bundle outState) {
         outState.putSerializable("cropCacheFolder", cropCacheFolder);
-        outState.putSerializable("takeImageFile", takeImageFile);
         outState.putSerializable("imageLoader", imageLoader);
         outState.putSerializable("style", style);
         outState.putBoolean("multiMode", multiMode);

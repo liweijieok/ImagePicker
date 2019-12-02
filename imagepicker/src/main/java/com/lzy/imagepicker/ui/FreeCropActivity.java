@@ -33,10 +33,8 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
     private ArrayList<ImageItem> mImageItems;
     private ImagePicker imagePicker;
     private FreeCropImageView mCropImageView;
-    private String mImagePath;
     private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
     private Uri mSourceUri = null;
-    private static String croppedPath;
     private View mLoadingBox;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +52,10 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
         mLoadingBox = (View) findViewById(R.id.ip_rl_box);
 
         mImageItems = imagePicker.getSelectedImages();
-        mImagePath = mImageItems.get(0).path;
-        mSourceUri = Uri.fromFile(new File(mImagePath));
+        mSourceUri = mImageItems.get(0).uri;
         mCropImageView.setCropMode(imagePicker.mFreeCropMode);
         mCropImageView.load(mSourceUri)
-                .initialFrameScale(0.5f)
+                .initialFrameScale(0.3f)
                 .useThumbnail(true)
                 .execute(mLoadCallback);
     }
@@ -104,7 +101,7 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
             mLoadingBox.setVisibility(View.GONE);
             mImageItems.remove(0);
             ImageItem imageItem = new ImageItem();
-            imageItem.path = croppedPath;
+            imageItem.uri = outputUri;
             mImageItems.add(imageItem);
             Intent intent = new Intent();
             intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, mImageItems);
@@ -127,22 +124,14 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
         Date today = new Date(currentTimeMillis);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String title = dateFormat.format(today);
-        String dirPath = getDirPath();
         String fileName = "scv" + title + "." + getMimeType(format);
-        croppedPath = dirPath + "/" + fileName;
-        File file = new File(croppedPath);
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, title);
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/" + getMimeType(format));
-        values.put(MediaStore.Images.Media.DATA, croppedPath);
         long time = currentTimeMillis / 1000;
         values.put(MediaStore.MediaColumns.DATE_ADDED, time);
         values.put(MediaStore.MediaColumns.DATE_MODIFIED, time);
-        if (file.exists()) {
-            values.put(MediaStore.Images.Media.SIZE, file.length());
-        }
-
         ContentResolver resolver = context.getContentResolver();
         Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         Logger.i("SaveUri = " + uri);

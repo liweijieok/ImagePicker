@@ -1239,7 +1239,9 @@ import io.reactivex.functions.Consumer;
         cropRect = new Rect((int) rotated.left, (int) rotated.top, (int) rotated.right,
             (int) rotated.bottom);
       }
-      cropped = decoder.decodeRegion(cropRect, new BitmapFactory.Options());
+      BitmapFactory.Options options = new BitmapFactory.Options();
+      options.inSampleSize = 2;
+      cropped = decoder.decodeRegion(cropRect, options);
       if (mAngle != 0) {
         Bitmap rotated = getRotatedBitmap(cropped);
         if (cropped != getBitmap() && cropped != rotated) {

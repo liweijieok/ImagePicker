@@ -1,6 +1,7 @@
 package com.lzy.imagepicker.util;
 
-import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -8,7 +9,6 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-import java.io.File;
 import java.io.IOException;
 
 
@@ -42,6 +42,56 @@ public class BitmapUtil {
         return degree;
     }
 
+    public static int getBitmapDegree(Context aContext,Uri path) {
+        int degree = 0;
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) {
+            return getBitmapDegree(getDataColumn(aContext,path));
+        }
+        try {
+            ExifInterface exifInterface = new ExifInterface(aContext.getContentResolver().openInputStream(path));
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+    /**
+     * 获取数据库表中的 _data 列，即返回Uri对应的文件路径
+     * sdk int <29时，可以根据uri获取文件路径
+     * @return
+     */
+    private static String getDataColumn(Context context, Uri uri) {
+        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.P) {
+            return "";
+        }
+        String path = "";
+        String[] projection = new String[]{MediaStore.Images.Media.DATA};
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri, projection, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(projection[0]);
+                path = cursor.getString(columnIndex);
+            }
+        } catch (Exception e) {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return path;
+    }
 
     public static Bitmap rotateBitmapByDegree(Bitmap bitmap, int degree) {
         Matrix matrix = new Matrix();
@@ -51,18 +101,6 @@ public class BitmapUtil {
             bitmap.recycle();
         }
         return newBitmap;
-    }
-
-
-    public static Uri getRotatedUri(Activity activity, String path){
-        int degree = BitmapUtil.getBitmapDegree(path);
-        if (degree != 0){
-            Bitmap bitmap = BitmapFactory.decodeFile(path);
-            Bitmap newBitmap = BitmapUtil.rotateBitmapByDegree(bitmap,degree);
-            return Uri.parse(MediaStore.Images.Media.insertImage(activity.getContentResolver(),newBitmap,null,null));
-        }else{
-            return Uri.fromFile(new File(path));
-        }
     }
 
 

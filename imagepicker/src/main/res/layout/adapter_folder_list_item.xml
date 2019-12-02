@@ -36,6 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/ip_all_images"
+            android:maxWidth="200dp"
+            android:ellipsize="start"
             android:textColor="#212121"
             android:textSize="14sp" />
 

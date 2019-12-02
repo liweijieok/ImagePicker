@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.lzy.imagepicker.DataHolder;
@@ -24,6 +25,7 @@ import com.lzy.imagepicker.bean.ImageItem;
 import com.lzy.imagepicker.util.Utils;
 import com.lzy.imagepicker.view.FolderPopUpWindow;
 import com.lzy.imagepicker.view.GridSpacingItemDecoration;
+import com.lzy.imagepicker.view.SuperCheckBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +46,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
 
     private ImagePicker imagePicker;
 
-    private boolean isOrigin = false;
     private View mFooterBar;
     private Button mBtnOk;
     private View mllDir;
@@ -56,6 +57,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     private boolean directPhoto = false;
     private RecyclerView mRecyclerView;
     private ImageRecyclerAdapter mRecyclerAdapter;
+    private SuperCheckBox mCbOrigin;
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -73,7 +75,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_grid);
-
         imagePicker = ImagePicker.getInstance();
         imagePicker.clear();
         imagePicker.addOnImageSelectedListener(this);
@@ -99,6 +100,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         mBtnOk.setOnClickListener(this);
         mBtnPre = (TextView) findViewById(R.id.btn_preview);
         mBtnPre.setOnClickListener(this);
+        mCbOrigin = (SuperCheckBox) findViewById(R.id.cb_origin);
         mFooterBar = findViewById(R.id.footer_bar);
         mllDir = findViewById(R.id.ll_dir);
         mllDir.setOnClickListener(this);
@@ -116,6 +118,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         mRecyclerView.setAdapter(mRecyclerAdapter);
         onImageSelected(0, null, false);
+        mCbOrigin.setChecked(imagePicker.isOrigin());
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
             if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -126,7 +129,18 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         } else {
             new ImageDataSource(this, null, this);
         }
+        mCbOrigin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                imagePicker.setOrigin(isChecked);
+            }
+        });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCbOrigin.setChecked(imagePicker.isOrigin());
     }
 
     private void checkToCapture() {
@@ -194,7 +208,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             Intent intent = new Intent(ImageGridActivity.this, ImagePreviewActivity.class);
             intent.putExtra(ImagePicker.EXTRA_SELECTED_IMAGE_POSITION, 0);
             intent.putExtra(ImagePicker.EXTRA_IMAGE_ITEMS, imagePicker.getSelectedImages());
-            intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
             intent.putExtra(ImagePicker.EXTRA_FROM_ITEMS, true);
             startActivityForResult(intent, ImagePicker.REQUEST_CODE_PREVIEW);
         } else if (id == R.id.btn_back) {
@@ -246,7 +259,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             intent.putExtra(ImagePicker.EXTRA_SELECTED_IMAGE_POSITION, position);
 
             DataHolder.getInstance().save(DataHolder.DH_CURRENT_IMAGE_FOLDER_ITEMS, imagePicker.getCurrentImageFolderItems());
-            intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
             startActivityForResult(intent, ImagePicker.REQUEST_CODE_PREVIEW);
         } else {
             imagePicker.clearSelectedImages();
@@ -285,7 +297,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             mBtnOk.setTextColor(ContextCompat.getColor(this, R.color.ip_text_secondary_inverted));
         }
         for (int i = imagePicker.isShowCamera() ? 1 : 0; i < mRecyclerAdapter.getItemCount(); i++) {
-            if (mRecyclerAdapter.getItem(i).path != null && mRecyclerAdapter.getItem(i).path.equals(item.path)) {
+            if (mRecyclerAdapter.getItem(i).uri != null && mRecyclerAdapter.getItem(i).uri.equals(item.uri)) {
                 mRecyclerAdapter.notifyItemChanged(i);
                 return;
             }
@@ -297,7 +309,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null && data.getExtras() != null) {
             if (resultCode == ImagePicker.RESULT_CODE_BACK) {
-                isOrigin = data.getBooleanExtra(ImagePreviewActivity.ISORIGIN, false);
             } else {
                 if (data.getSerializableExtra(ImagePicker.EXTRA_RESULT_ITEMS) == null) {
                 } else {
@@ -307,10 +318,8 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             }
         } else {
             if (resultCode == RESULT_OK && requestCode == ImagePicker.REQUEST_CODE_TAKE) {
-                ImagePicker.galleryAddPic(this, imagePicker.getTakeImageFile());
-                String path = imagePicker.getTakeImageFile().getAbsolutePath();
                 ImageItem imageItem = new ImageItem();
-                imageItem.path = path;
+                imageItem.uri = imagePicker.getUri();
                 if (!imagePicker.isMultiMode()) {
                     if (imagePicker.isFreeCrop) {
                         imagePicker.clearSelectedImages();

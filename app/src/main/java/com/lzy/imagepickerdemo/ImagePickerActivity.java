@@ -24,11 +24,10 @@ import com.lzy.imagepicker.ImagePicker;
 import com.lzy.imagepicker.bean.ImageItem;
 import com.lzy.imagepicker.ui.ImageGridActivity;
 import com.lzy.imagepicker.util.InnerToaster;
+import com.lzy.imagepicker.util.Utils;
 import com.lzy.imagepicker.view.CropImageView;
 import com.lzy.imagepickerdemo.imageloader.GlideImageLoader;
 import com.lzy.imagepickerdemo.imageloader.PicassoImageLoader;
-import com.lzy.imagepickerdemo.imageloader.UILImageLoader;
-import com.lzy.imagepickerdemo.imageloader.XUtils3ImageLoader;
 import com.lzy.imagepickerdemo.wxdemo.WxDemoActivity;
 
 import java.util.ArrayList;
@@ -49,12 +48,8 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
 
     private ImagePicker imagePicker;
 
-    private RadioButton rb_uil;
     private RadioButton rb_glide;
     private RadioButton rb_picasso;
-    private RadioButton rb_fresco;
-    private RadioButton rb_xutils3;
-    private RadioButton rb_xutils;
     private RadioButton rb_single_select;
     private RadioButton rb_muti_select;
     private RadioButton rb_crop_square;
@@ -85,12 +80,8 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
                 Toast.makeText(ImagePickerActivity.this, resId, Toast.LENGTH_SHORT).show();
             }
         });
-        rb_uil = (RadioButton) findViewById(R.id.rb_uil);
         rb_glide = (RadioButton) findViewById(R.id.rb_glide);
         rb_picasso = (RadioButton) findViewById(R.id.rb_picasso);
-        rb_fresco = (RadioButton) findViewById(R.id.rb_fresco);
-        rb_xutils3 = (RadioButton) findViewById(R.id.rb_xutils3);
-        rb_xutils = (RadioButton) findViewById(R.id.rb_xutils);
         rb_single_select = (RadioButton) findViewById(R.id.rb_single_select);
         rb_muti_select = (RadioButton) findViewById(R.id.rb_muti_select);
         rb_crop_square = (RadioButton) findViewById(R.id.rb_crop_square);
@@ -148,15 +139,9 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_open_gallery:
-                if (rb_uil.isChecked()) imagePicker.setImageLoader(new UILImageLoader());
-                else if (rb_glide.isChecked()) imagePicker.setImageLoader(new GlideImageLoader());
+                if (rb_glide.isChecked()) imagePicker.setImageLoader(new GlideImageLoader());
                 else if (rb_picasso.isChecked())
                     imagePicker.setImageLoader(new PicassoImageLoader());
-                else if (rb_fresco.isChecked()) imagePicker.setImageLoader(new GlideImageLoader());
-                else if (rb_xutils3.isChecked())
-                    imagePicker.setImageLoader(new XUtils3ImageLoader());
-                else if (rb_xutils.isChecked()) imagePicker.setImageLoader(new GlideImageLoader());
-
                 if (rb_single_select.isChecked()) imagePicker.setMultiMode(false);
                 else if (rb_muti_select.isChecked()) imagePicker.setMultiMode(true);
 
@@ -234,6 +219,10 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
         if (resultCode == ImagePicker.RESULT_CODE_ITEMS) {
             if (data != null && requestCode == 100) {
                 images = (ArrayList<ImageItem>) data.getSerializableExtra(ImagePicker.EXTRA_RESULT_ITEMS);
+                for(ImageItem item:images){
+                    Utils.innerLog("item-- "+item.toString());
+                }
+                Utils.innerLog("item-- isOrigin:"+imagePicker.isOrigin());
                 MyAdapter adapter = new MyAdapter(images);
                 gridView.setAdapter(adapter);
             } else {
@@ -283,7 +272,7 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
             } else {
                 imageView = (ImageView) convertView;
             }
-            imagePicker.getImageLoader().displayImage(ImagePickerActivity.this, getItem(position).path, imageView, size, size);
+            imagePicker.getImageLoader().displayImage(ImagePickerActivity.this, getItem(position).uri, imageView, size, size);
             return imageView;
         }
     }

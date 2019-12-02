@@ -2,7 +2,6 @@ package com.lzy.imagepickerdemo.wxdemo;
 
 import android.app.Activity;
 import android.content.Context;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,8 @@ import com.lzy.imagepickerdemo.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * ================================================
@@ -98,7 +99,7 @@ public class ImagePickerAdapter extends RecyclerView.Adapter<ImagePickerAdapter.
                 iv_img.setImageResource(R.drawable.selector_image_add);
                 clickPosition = WxDemoActivity.IMAGE_ITEM_ADD;
             } else {
-                ImagePicker.getInstance().getImageLoader().displayImage((Activity) mContext, item.path, iv_img, 0, 0);
+                ImagePicker.getInstance().getImageLoader().displayImage((Activity) mContext, item.uri, iv_img, 0, 0);
                 clickPosition = position;
             }
         }

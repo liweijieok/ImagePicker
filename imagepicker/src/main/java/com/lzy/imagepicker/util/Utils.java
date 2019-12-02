@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.KeyCharacterMap;
@@ -84,5 +85,11 @@ public class Utils {
     public static int getNavigationBarHeight(Context context) {
         int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
         return resourceId > 0 ? context.getResources().getDimensionPixelSize(resourceId) : 0;
+    }
+
+    public static void innerLog(String msg){
+        if(false){
+            Log.d("imagepicker--",msg);
+        }
     }
 }

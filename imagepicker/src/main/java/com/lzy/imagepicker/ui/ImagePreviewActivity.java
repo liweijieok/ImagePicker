@@ -3,7 +3,6 @@ package com.lzy.imagepicker.ui;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.format.Formatter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -24,7 +23,6 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
 
     public static final String ISORIGIN = "isOrigin";
 
-    private boolean isOrigin;
     private SuperCheckBox mCbCheck;
     private SuperCheckBox mCbOrigin;
     private Button mBtnOk;
@@ -35,7 +33,6 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        isOrigin = getIntent().getBooleanExtra(ImagePreviewActivity.ISORIGIN, false);
         imagePicker.addOnImageSelectedListener(this);
         mBtnOk = (Button) findViewById(R.id.btn_ok);
         mBtnOk.setVisibility(View.VISIBLE);
@@ -49,7 +46,7 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
         marginView = findViewById(R.id.margin_bottom);
         mCbOrigin.setText(getString(R.string.ip_origin));
         mCbOrigin.setOnCheckedChangeListener(this);
-        mCbOrigin.setChecked(isOrigin);
+        mCbOrigin.setChecked(imagePicker.isOrigin());
 
         onImageSelected(0, null, false);
         ImageItem item = mImageItems.get(mCurrentPosition);
@@ -118,14 +115,12 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
         } else {
             mBtnOk.setText(getString(R.string.ip_complete));
         }
+    }
 
-        if (mCbOrigin.isChecked()) {
-            long size = 0;
-            for (ImageItem imageItem : selectedImages)
-                size += imageItem.size;
-            String fileSize = Formatter.formatFileSize(this, size);
-            mCbOrigin.setText(getString(R.string.ip_origin_size, fileSize));
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCbOrigin.setChecked(imagePicker.isOrigin());
     }
 
     @Override
@@ -144,7 +139,6 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
 
         } else if (id == R.id.btn_back) {
             Intent intent = new Intent();
-            intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
             setResult(ImagePicker.RESULT_CODE_BACK, intent);
             finish();
         }
@@ -153,7 +147,6 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
         setResult(ImagePicker.RESULT_CODE_BACK, intent);
         finish();
         super.onBackPressed();
@@ -163,17 +156,7 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         int id = buttonView.getId();
         if (id == R.id.cb_origin) {
-            if (isChecked) {
-                long size = 0;
-                for (ImageItem item : selectedImages)
-                    size += item.size;
-                String fileSize = Formatter.formatFileSize(this, size);
-                isOrigin = true;
-                mCbOrigin.setText(getString(R.string.ip_origin_size, fileSize));
-            } else {
-                isOrigin = false;
-                mCbOrigin.setText(getString(R.string.ip_origin));
-            }
+            imagePicker.setOrigin(isChecked);
         }
     }
 
