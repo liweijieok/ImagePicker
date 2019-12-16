@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-//apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.novoda.bintray-release'
 android {
     compileSdkVersion 29
 
@@ -33,12 +33,12 @@ dependencies {
     compileOnly "io.reactivex.rxjava2:rxandroid:2.0.2"
 }
 
-//publish {
-//    userOrg = 'cysion1989'
-//    groupId = 'com.cysion'
-//    artifactId = 'ImagePicker'
-//    repoName='maven'
-//    publishVersion = '1.0.9.Q'
-//    desc = '仿微信选择图片'
-//    website = 'https://**'
-//}
+publish {
+    userOrg = 'cysion1989'
+    groupId = 'com.cysion'
+    artifactId = 'ImagePicker'
+    repoName='maven'
+    publishVersion = '1.1.0.Q'
+    desc = '仿微信选择图片'
+    website = 'https://**'
+}
