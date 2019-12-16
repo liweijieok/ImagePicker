@@ -1,14 +1,11 @@
 package com.lzy.imagepicker.ui;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 
@@ -36,7 +33,6 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
     private String mImagePath;
     private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
     private Uri mSourceUri = null;
-    private static String croppedPath;
     private View mLoadingBox;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +43,7 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
 
         mCropImageView = findViewById(R.id.freeCropImageView);
 
-        //³õÊ¼»¯View
+        //ï¿½ï¿½Ê¼ï¿½ï¿½View
         findViewById(R.id.btn_back).setOnClickListener(this);
         Button btn_ok = findViewById(R.id.btn_ok);
         btn_ok.setText(getString(R.string.ip_complete));
@@ -104,14 +100,14 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
         @Override
         public void onSuccess(Uri outputUri) {
             mLoadingBox.setVisibility(View.GONE);
-            //²Ã¼ôºóÌæ»»µô·µ»ØÊý¾ÝµÄÄÚÈÝ£¬µ«ÊÇ²»Òª¸Ä±äÈ«¾ÖÖÐµÄÑ¡ÖÐÊý¾Ý
+            //ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½æ»»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½Ç²ï¿½Òªï¿½Ä±ï¿½È«ï¿½ï¿½ï¿½Ðµï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             mImageItems.remove(0);
             ImageItem imageItem = new ImageItem();
-            imageItem.path = croppedPath;
+            imageItem.path = outputUri.getPath();
             mImageItems.add(imageItem);
             Intent intent = new Intent();
             intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, mImageItems);
-            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //µ¥Ñ¡²»ÐèÒª²Ã¼ô£¬·µ»ØÊý¾Ý
+            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Òªï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             finish();
         }
 
@@ -130,26 +126,10 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
         Date today = new Date(currentTimeMillis);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String title = dateFormat.format(today);
-        String dirPath = getDirPath();
         String fileName = "scv" + title + "." + getMimeType(format);
-        croppedPath = dirPath + "/" + fileName;
-        File file = new File(croppedPath);
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.TITLE, title);
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/" + getMimeType(format));
-        values.put(MediaStore.Images.Media.DATA, croppedPath);
-        long time = currentTimeMillis / 1000;
-        values.put(MediaStore.MediaColumns.DATE_ADDED, time);
-        values.put(MediaStore.MediaColumns.DATE_MODIFIED, time);
-        if (file.exists()) {
-            values.put(MediaStore.Images.Media.SIZE, file.length());
-        }
-
-        ContentResolver resolver = context.getContentResolver();
-        Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        Logger.i("SaveUri = " + uri);
-        return uri;
+        File cropCacheFolder = ImagePicker.getInstance().getCropCacheFolder(context);
+        File cropFile = new File(cropCacheFolder,fileName);
+        return Uri.fromFile(cropFile);
     }
 
     public static String getDirPath() {
