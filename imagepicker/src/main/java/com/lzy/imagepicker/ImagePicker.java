@@ -57,24 +57,23 @@ public class ImagePicker {
     public static final String EXTRA_IMAGE_ITEMS = "extra_image_items";
     public static final String EXTRA_FROM_ITEMS = "extra_from_items";
 
-    private boolean multiMode = true;    //ͼƬѡ��ģʽ
-    private int selectLimit = 9;         //���ѡ��ͼƬ����
-    private boolean crop = true;         //�ü�
-    private boolean showCamera = true;   //��ʾ���
-    private boolean isSaveRectangle = false;  //�ü����ͼƬ�Ƿ��Ǿ��Σ����߸���ü������״
-    private int outPutX = 800;           //�ü�������
-    private int outPutY = 800;           //�ü�����߶�
-    private int focusWidth = 280;         //�����Ŀ��
-    private int focusHeight = 280;        //�����ĸ߶�
-    private ImageLoader imageLoader;     //ͼƬ������
-    private CropImageView.Style style = CropImageView.Style.RECTANGLE; //�ü������״
+    private boolean multiMode = true;
+    private int selectLimit = 9;
+    private boolean crop = true;
+    private boolean showCamera = true;
+    private boolean isSaveRectangle = false;
+    private int outPutX = 800;
+    private int outPutY = 800;
+    private int focusWidth = 280;
+    private int focusHeight = 280;
+    private ImageLoader imageLoader;
+    private CropImageView.Style style = CropImageView.Style.RECTANGLE;
     private File cropCacheFolder;
     private File takeImageFile;
 
-    //�������ɲü�ʱ��ģʽ��Ĭ������ģʽ
     public FreeCropImageView.CropMode mFreeCropMode = com.isseiaoki.simplecropview.FreeCropImageView.CropMode.FREE;
-    public boolean isFreeCrop = false;//�Ƿ������ɲü�ģʽ����ԭ���Ĳü�ģʽ��������
-    private ArrayList<ImageItem> mSelectedImages = new ArrayList<>();   //ѡ�е�ͼƬ����
+    public boolean isFreeCrop = false;
+    private ArrayList<ImageItem> mSelectedImages = new ArrayList<>();
     private List<ImageFolder> mImageFolders;      //���е�ͼƬ�ļ���
     private int mCurrentImageFolderPosition = 0;  //��ǰѡ�е��ļ���λ�� 0��ʾ����ͼƬ
     private List<OnImageSelectedListener> mImageSelectedListeners;          // ͼƬѡ�еļ����ص�
@@ -283,12 +282,8 @@ public class ImagePicker {
                     uri = Uri.fromFile(takeImageFile);
                 } else {
 
-                    /**
-                     * 7.0 ����ϵͳ������ղ�������ʹ��Uri��ʽ��Ӧ���滻ΪFileProvider
-                     * �����������Խ��MIUIϵͳ�����շ���sizeΪ0�����
-                     */
+
                     uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile);
-                    //����uriȨ�� Ҫ�������ֻ���������
                     List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
                     for (ResolveInfo resolveInfo : resInfoList) {
                         String packageName = resolveInfo.activityInfo.packageName;
@@ -399,7 +394,6 @@ public class ImagePicker {
     }
 
 
-    //�����ڲ�toastչʾ���
     public void setIToaster(Context aContext, InnerToaster.IToaster aIToaster) {
         InnerToaster.obj(aContext).setIToaster(aIToaster);
     }
