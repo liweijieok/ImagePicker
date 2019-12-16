@@ -166,6 +166,7 @@ public class ImagePicker {
         if (cropCacheFolder == null) {
             cropCacheFolder = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/cropTemp/");
         }
+        if (!cropCacheFolder.exists() || !cropCacheFolder.isDirectory()) cropCacheFolder.mkdirs();
         return cropCacheFolder;
     }
 

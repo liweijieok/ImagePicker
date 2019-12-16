@@ -30,6 +30,7 @@ import com.lzy.imagepickerdemo.imageloader.GlideImageLoader;
 import com.lzy.imagepickerdemo.imageloader.PicassoImageLoader;
 import com.lzy.imagepickerdemo.wxdemo.WxDemoActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,6 +134,8 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
         btn_wxDemo.setOnClickListener(this);
 
         gridView = (GridView) findViewById(R.id.gridview);
+
+        imagePicker.setCropCacheFolder(new File((getExternalCacheDir()+"/qq")));
     }
 
     @Override
