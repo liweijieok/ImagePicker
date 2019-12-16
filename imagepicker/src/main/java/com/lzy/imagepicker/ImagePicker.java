@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 
 import com.isseiaoki.simplecropview.FreeCropImageView;
@@ -163,7 +164,7 @@ public class ImagePicker {
 
     public File getCropCacheFolder(Context context) {
         if (cropCacheFolder == null) {
-            cropCacheFolder = new File(context.getCacheDir() + "/ImagePicker/cropTemp/");
+            cropCacheFolder = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/cropTemp/");
         }
         return cropCacheFolder;
     }

@@ -125,17 +125,9 @@ public class FreeCropActivity extends ImageBaseActivity implements View.OnClickL
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String title = dateFormat.format(today);
         String fileName = "scv" + title + "." + getMimeType(format);
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.TITLE, title);
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/" + getMimeType(format));
-        long time = currentTimeMillis / 1000;
-        values.put(MediaStore.MediaColumns.DATE_ADDED, time);
-        values.put(MediaStore.MediaColumns.DATE_MODIFIED, time);
-        ContentResolver resolver = context.getContentResolver();
-        Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        Logger.i("SaveUri = " + uri);
-        return uri;
+        File cropCacheFolder = ImagePicker.getInstance().getCropCacheFolder(context);
+        File cropFile = new File(cropCacheFolder,fileName);
+        return Uri.fromFile(cropFile);
     }
 
     public static String getDirPath() {
