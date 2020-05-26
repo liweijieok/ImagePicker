@@ -126,6 +126,9 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                 imageFolder.path = imageParentFile.getAbsolutePath();
             }else{
                 String tname = "";
+                if(relativePath==null){
+                    relativePath="";
+                }
                 if(relativePath.length()>0){
                     tname = relativePath.substring(0,relativePath.length()-1);
                 }
