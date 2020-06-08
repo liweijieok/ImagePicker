@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.isseiaoki.simplecropview.FreeCropImageView;
 import com.lzy.imagepicker.ImagePicker;
+import com.lzy.imagepicker.ImageTypeFilter;
 import com.lzy.imagepicker.bean.ImageItem;
 import com.lzy.imagepicker.ui.ImageGridActivity;
 import com.lzy.imagepicker.util.InnerToaster;
@@ -86,6 +87,15 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
                 Toast.makeText(ImagePickerActivity.this, resId, Toast.LENGTH_SHORT).show();
             }
         });
+        //添加类型过滤器
+        imagePicker.setFilter(new ImageTypeFilter() {
+            @Override
+            public boolean filter(String mimeType) {
+                return "image/png".equalsIgnoreCase(mimeType)
+                        || "image/jpeg".equalsIgnoreCase(mimeType)
+                        || "image/jpg".equalsIgnoreCase(mimeType);
+            }
+        });
         rb_uil = (RadioButton) findViewById(R.id.rb_uil);
         rb_glide = (RadioButton) findViewById(R.id.rb_glide);
         rb_picasso = (RadioButton) findViewById(R.id.rb_picasso);
@@ -102,7 +112,7 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
         rb_muti_select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton aCompoundButton, boolean aB) {
-                if (images != null&&aB) {
+                if (images != null && aB) {
                     images.clear();
                 }
             }
@@ -141,7 +151,7 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
         btn_open_gallery.setOnClickListener(this);
         Button btn_wxDemo = (Button) findViewById(R.id.btn_wxDemo);
         btn_wxDemo.setOnClickListener(this);
-        imagePicker.setCropCacheFolder(new File(getExternalCacheDir(),"test/crop"));
+        imagePicker.setCropCacheFolder(new File(getExternalCacheDir(), "test/crop"));
         gridView = (GridView) findViewById(R.id.gridview);
     }
 
@@ -180,7 +190,7 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
                 imagePicker.setOutPutX(Integer.valueOf(et_outputx.getText().toString()));
                 imagePicker.setOutPutY(Integer.valueOf(et_outputy.getText().toString()));
 
-                if (!imagePicker.isMultiMode()&&images!=null) {
+                if (!imagePicker.isMultiMode() && images != null) {
                     images.clear();
                 }
                 Intent intent = new Intent(this, ImageGridActivity.class);

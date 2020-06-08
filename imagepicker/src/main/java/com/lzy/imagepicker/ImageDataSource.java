@@ -34,13 +34,14 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
     private OnImagesLoadedListener loadedListener;
     private ArrayList<ImageFolder> imageFolders = new ArrayList<>();
     private int mLoadedCount = 0;
+    private ImageTypeFilter mFilter;
 
 
     public ImageDataSource(FragmentActivity activity, String path, OnImagesLoadedListener loadedListener) {
         this.activity = activity;
         this.loadedListener = loadedListener;
-        mLoadedCount=0;
-
+        mLoadedCount = 0;
+        mFilter = ImagePicker.getInstance().getFilter();
         LoaderManager loaderManager = activity.getSupportLoaderManager();
         if (path == null) {
             loaderManager.initLoader(LOADER_ALL, null, this);
@@ -87,6 +88,9 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
             int imageHeight = data.getInt(data.getColumnIndexOrThrow(IMAGE_PROJECTION[4]));
             String imageMimeType = data.getString(data.getColumnIndexOrThrow(IMAGE_PROJECTION[5]));
             long imageAddTime = data.getLong(data.getColumnIndexOrThrow(IMAGE_PROJECTION[6]));
+            if (mFilter != null && !mFilter.filter(imageMimeType)) {
+                continue;
+            }
             ImageItem imageItem = new ImageItem();
             imageItem.name = imageName;
             imageItem.path = imagePath;

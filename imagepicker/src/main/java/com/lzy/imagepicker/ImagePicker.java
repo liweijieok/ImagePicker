@@ -65,7 +65,7 @@ public class ImagePicker {
     private List<ImageFolder> mImageFolders;
     private int mCurrentImageFolderPosition = 0;
     private List<OnImageSelectedListener> mImageSelectedListeners;
-
+    private ImageTypeFilter mFilter;
     private static ImagePicker mInstance;
 
 
@@ -226,6 +226,13 @@ public class ImagePicker {
         if (mSelectedImages != null) mSelectedImages.clear();
     }
 
+    public ImageTypeFilter getFilter(){
+        return mFilter;
+    }
+
+    public void setFilter(ImageTypeFilter filter) {
+        this.mFilter = filter;
+    }
     public void clear() {
         if (mImageSelectedListeners != null) {
             mImageSelectedListeners.clear();
